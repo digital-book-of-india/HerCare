@@ -1,0 +1,78 @@
+# Mobile app. The framework is not chosen yet (the product plan allows React Native or Flutter), so
+# this covers both. These rules live here so they apply to mobile/android and mobile/ios; the root
+# .gitignore can only match a top-level android/ or ios/ folder.
+
+# ---- Secrets and signing material: NEVER commit
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.pem
+*.key
+*.mobileprovision
+key.properties
+local.properties
+
+# ---- JavaScript / React Native / Expo
+node_modules/
+.expo/
+.expo-shared/
+dist/
+web-build/
+.metro-health-check*
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.tsbuildinfo
+# (package-lock.json / yarn.lock / pnpm-lock.yaml are committed on purpose)
+
+# ---- Android
+android/.gradle/
+android/build/
+android/app/build/
+android/app/release/
+android/captures/
+android/.idea/
+.gradle/
+*.apk
+*.aab
+*.hprof
+
+# ---- iOS
+ios/Pods/
+ios/build/
+ios/DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.ipa
+*.dSYM.zip
+*.dSYM/
+
+# ---- Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+# (pubspec.lock is committed on purpose for an app)
+
+# ---- Native build caches
+.cxx/
+.externalNativeBuild/
+.bundle/
+vendor/bundle/
+
+# ---- Logs, coverage, OS and editor files
+logs/
+*.log
+coverage/
+.DS_Store
+Thumbs.db
+.idea/
+*.iml

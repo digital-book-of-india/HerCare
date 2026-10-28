@@ -1,0 +1,2105 @@
+{
+  "info": {
+    "name": "HerCare API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Backend for HerCare Women, a free period tracker inside the DBI app.\n\n**Who signs in.** Users are DBI users: send the token DBI gave them as `Authorization: Bearer <token>`. HerCare has no passwords of its own for users. The admin signs in with `POST /admin/auth/login` and gets a separate admin token. The two kinds of token do not work on each other's routes.\n\n**Envelope.** Success: `{ \"success\": true, \"message\": \"...\", \"data\": { ... } }`. Error: `{ \"success\": false, \"error\": { \"code\": \"...\", \"message\": \"...\", \"details\": [...] } }`.\n\n**Dates** are plain calendar dates, `YYYY-MM-DD`, never timestamps. Times of day are `HH:MM` in the user's local time. Send `?date=` (the phone's local date) wherever it is accepted.\n\n**Estimates.** Predicted dates are always estimates and are never stored as history.\n\nGuides: docs/mobile-integration-guide.md, docs/sync-guide.md, docs/estimate-rule.md, docs/admin-panel-guide.md.\n\nSetup: set `baseUrl` (collection variable). For user requests set `userToken`: in local development run `npm run dev-token` in the backend folder and paste the result. For admin requests run \"Sign in as the admin\" once; it stores `adminToken` for you."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api"
+    },
+    {
+      "key": "userToken",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Is the server (and its database) up?",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Not rate limited. 200 when the database is reachable, 503 when it is not. Use it for load balancer checks.\n\nOperation: health"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Content",
+      "item": [
+        {
+          "name": "Disclaimer, privacy text and whether HerCare is switched on",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/content",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "content"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Public: needed before anyone signs in (welcome and consent screen). Contains no user data.\n\nOperation: getPublicContent"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "Check that your DBI token is accepted",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "me"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: getMe"
+          },
+          "response": []
+        },
+        {
+          "name": "Download all of the user's data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "export"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "A versioned JSON backup in the same shape sync uses (notes decrypted, deleted records left out). Still works when HerCare is switched off.\n\nOperation: exportData"
+          },
+          "response": []
+        },
+        {
+          "name": "Permanently delete all of the user's HerCare data",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/data",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "data"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Deletes every HerCare record of this user (the DBI account is not touched). Cannot be undone. After this, `sync` returns `erasedAt`: any phone that last synced before that must wipe its local copy. Still works when HerCare is switched off.\n\nOperation: eraseData",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"confirm\": \"DELETE ALL MY DATA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Settings",
+      "item": [
+        {
+          "name": "Cycle length and period length",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "settings"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: getSettings"
+          },
+          "response": []
+        },
+        {
+          "name": "Save the user's cycle length and/or period length",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "settings"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: updateSettings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cycleLength\": 30,\n  \"periodDuration\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Periods",
+      "item": [
+        {
+          "name": "The period history, newest first",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/periods",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "periods"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2026-09-01",
+                  "disabled": true,
+                  "description": "First day (inclusive)"
+                },
+                {
+                  "key": "to",
+                  "value": "2026-09-01",
+                  "disabled": true,
+                  "description": "Last day (inclusive)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true,
+                  "description": "Page size, 1 to 200"
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: listPeriods"
+          },
+          "response": []
+        },
+        {
+          "name": "Log a period",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/periods",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "periods"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "The same start date twice is refused (409 DUPLICATE_PERIOD, edit the existing one). An overlap is refused with 409 OVERLAPPING_PERIOD until the user confirms and you resend with `confirmOverlap: true`. A period can be at most 20 days; dates can be at most one day ahead of the server's UTC date.\n\nOperation: createPeriod",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startDate\": \"2026-09-01\",\n  \"endDate\": \"2026-09-05\",\n  \"notes\": \"Felt tired on day 1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "One period",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/periods/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "periods",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "65f1c2a4b8e9d3a7c1f20e11",
+                  "description": "The record id"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: getPeriod"
+          },
+          "response": []
+        },
+        {
+          "name": "Edit a period",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/periods/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "periods",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "65f1c2a4b8e9d3a7c1f20e11",
+                  "description": "The record id"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Only this record changes. Send `endDate: null` to clear the end date. The same duplicate and overlap rules apply as when logging.\n\nOperation: updatePeriod",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"endDate\": \"2026-09-06\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a period",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/periods/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "periods",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "65f1c2a4b8e9d3a7c1f20e11",
+                  "description": "The record id"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: deletePeriod"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cycle",
+      "item": [
+        {
+          "name": "The next-period estimate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/cycle/estimate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "cycle",
+                "estimate"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-09-01",
+                  "disabled": true,
+                  "description": "The phone's local date. Defaults to the server's UTC date. Send it so \"today\" is right in every time zone."
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Computed from the recorded periods by the rule in docs/estimate-rule.md. It is ALWAYS an estimate. A phone that works offline must implement the same rule; docs/estimate-test-vectors.json lets you check it.\n\nOperation: getEstimate"
+          },
+          "response": []
+        },
+        {
+          "name": "One month, with logged days and estimated days",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/cycle/calendar?month=2026-10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "cycle",
+                "calendar"
+              ],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "2026-10",
+                  "disabled": false,
+                  "description": "The month, YYYY-MM"
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: getCalendar"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Symptoms",
+      "item": [
+        {
+          "name": "Symptom and flow log, newest first",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/symptoms",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "symptoms"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2026-09-01",
+                  "disabled": true,
+                  "description": "First day (inclusive)"
+                },
+                {
+                  "key": "to",
+                  "value": "2026-09-01",
+                  "disabled": true,
+                  "description": "Last day (inclusive)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "31",
+                  "disabled": true,
+                  "description": "Page size, 1 to 100"
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: listSymptoms"
+          },
+          "response": []
+        },
+        {
+          "name": "Save the log for a day (creates or replaces)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/symptoms/:date",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "symptoms",
+                ":date"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "date",
+                  "value": "2026-09-01",
+                  "description": "The day, YYYY-MM-DD"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Replaces the whole entry for that date, so sending it twice is harmless. 201 the first time, 200 after. An empty entry is refused. Only the listed symptom names are accepted.\n\nOperation: saveSymptoms",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"symptoms\": [\n    \"cramps\",\n    \"headache\"\n  ],\n  \"flow\": \"medium\",\n  \"mood\": \"calm\",\n  \"energy\": \"low\",\n  \"note\": \"Rested in the evening\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "The log for one day",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/symptoms/:date",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "symptoms",
+                ":date"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "date",
+                  "value": "2026-09-01",
+                  "description": "The day, YYYY-MM-DD"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: getSymptoms"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete the log for one day",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/symptoms/:date",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "symptoms",
+                ":date"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "date",
+                  "value": "2026-09-01",
+                  "description": "The day, YYYY-MM-DD"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: deleteSymptoms"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Checklist",
+      "item": [
+        {
+          "name": "The user's own checklist items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/checklist/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "checklist",
+                "items"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "On first use the user gets a copy of the admin's default items. After that the list is theirs to edit (max 30).\n\nOperation: listChecklistItems"
+          },
+          "response": []
+        },
+        {
+          "name": "Add a checklist item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/checklist/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "checklist",
+                "items"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: addChecklistItem",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Stretch for 5 minutes\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Rename or reorder an item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/checklist/items/:itemId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "checklist",
+                "items",
+                ":itemId"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "itemId",
+                  "value": "65f1c2a4b8e9d3a7c1f20e11",
+                  "description": "The checklist item id"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: updateChecklistItem",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Light stretching\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove an item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/checklist/items/:itemId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "checklist",
+                "items",
+                ":itemId"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "itemId",
+                  "value": "65f1c2a4b8e9d3a7c1f20e11",
+                  "description": "The checklist item id"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Past days that it was ticked on still show it.\n\nOperation: deleteChecklistItem"
+          },
+          "response": []
+        },
+        {
+          "name": "Which items were completed on which days",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/checklist/history?from=2026-09-01&to=2026-09-01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "checklist",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2026-09-01",
+                  "disabled": false,
+                  "description": "First day (inclusive)"
+                },
+                {
+                  "key": "to",
+                  "value": "2026-09-01",
+                  "disabled": false,
+                  "description": "Last day (inclusive)"
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "At most 92 days at a time.\n\nOperation: getChecklistHistory"
+          },
+          "response": []
+        },
+        {
+          "name": "The checklist for one day",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/checklist",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "checklist"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-09-01",
+                  "disabled": true,
+                  "description": "The phone's local date. Defaults to the server's UTC date. Send it so \"today\" is right in every time zone."
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Each day starts fresh (nothing ticked); earlier days keep their ticks.\n\nOperation: getChecklist"
+          },
+          "response": []
+        },
+        {
+          "name": "Tick or untick an item on a day",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/checklist/:date/items/:itemId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "checklist",
+                ":date",
+                "items",
+                ":itemId"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "date",
+                  "value": "2026-09-01",
+                  "description": "The day, YYYY-MM-DD"
+                },
+                {
+                  "key": "itemId",
+                  "value": "65f1c2a4b8e9d3a7c1f20e11",
+                  "description": "The checklist item id"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: setChecklistItem",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completed\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Hydration",
+      "item": [
+        {
+          "name": "The user's hydration reminder times for a day, with done flags",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/hydration",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "hydration"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-09-01",
+                  "disabled": true,
+                  "description": "The phone's local date. Defaults to the server's UTC date. Send it so \"today\" is right in every time zone."
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "No amount of water is ever stored or suggested.\n\nOperation: getHydration"
+          },
+          "response": []
+        },
+        {
+          "name": "Mark a hydration reminder done (or not)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/hydration/:date/:time",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "hydration",
+                ":date",
+                ":time"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "date",
+                  "value": "2026-09-01",
+                  "description": "The day, YYYY-MM-DD"
+                },
+                {
+                  "key": "time",
+                  "value": "10:00",
+                  "description": "One of the user's hydration reminder times, HH:MM"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "The time must be one of the user's hydration reminder times.\n\nOperation: setHydrationDone",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"done\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reminders",
+      "item": [
+        {
+          "name": "All three reminders with their status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/reminders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "reminders"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-09-01",
+                  "disabled": true,
+                  "description": "The phone's local date. Defaults to the server's UTC date. Send it so \"today\" is right in every time zone."
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "All reminders start switched off until the user turns them on. `status` is disabled, paused, snoozed or active.\n\nOperation: getReminders"
+          },
+          "response": []
+        },
+        {
+          "name": "The notifications the phone should schedule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/reminders/schedule",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "reminders",
+                "schedule"
+              ],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30",
+                  "disabled": true,
+                  "description": "How many days ahead"
+                },
+                {
+                  "key": "date",
+                  "value": "2026-09-01",
+                  "disabled": true,
+                  "description": "The phone's local date. Defaults to the server's UTC date. Send it so \"today\" is right in every time zone."
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Computed fresh from the CURRENT period history every time, so an edited or deleted period can never leave a stale reminder. After any change to periods or reminder settings (and on app start), cancel the phone's old notifications and schedule this list. Times are the user's local time; the server does no time-zone conversion.\n\nOperation: getReminderSchedule"
+          },
+          "response": []
+        },
+        {
+          "name": "Turn a reminder on or off, pause, snooze, or change its time",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/reminders/:type",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "reminders",
+                ":type"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "type",
+                  "value": "period",
+                  "description": "The reminder type"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Settings that do not apply to a type are refused: `leadDays` and `timeOfDay` for period; `timeOfDay` for daily_log; `times` (up to 12, HH:MM) for hydration. `snoozeDays` 1 to 30 skips today and the following days; 0 or null cancels a snooze. A hydration reminder cannot be turned on without times.\n\nOperation: updateReminder",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enabled\": true,\n  \"leadDays\": 2,\n  \"timeOfDay\": \"09:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Self-care",
+      "item": [
+        {
+          "name": "Reviewed tips",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/tips",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "tips"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "food",
+                  "disabled": true,
+                  "description": "Only this type"
+                },
+                {
+                  "key": "date",
+                  "value": "2026-09-01",
+                  "disabled": true,
+                  "description": "The phone's local date. Defaults to the server's UTC date. Send it so \"today\" is right in every time zone."
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Only tips that have been clinically reviewed AND activated are returned. While a period is logged (`inPeriod`), the tips marked \"only during a period\" are added. Activity tips are marked optional and skippable. Empty until the admin has activated tips.\n\nOperation: getTips"
+          },
+          "response": []
+        },
+        {
+          "name": "Everything the Daily Self-Care screen needs, in one call",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/selfcare/today",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "selfcare",
+                "today"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-09-01",
+                  "disabled": true,
+                  "description": "The phone's local date. Defaults to the server's UTC date. Send it so \"today\" is right in every time zone."
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: getSelfCareToday"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Sync",
+      "item": [
+        {
+          "name": "Push the phone's changes and pull the server's, in one call",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/sync",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "sync"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "See docs/sync-guide.md for the full protocol (cursor, paging, conflicts, deletes, erase, restore). Safe to repeat: sending the same changes again changes nothing. Accepts bodies up to 2 MB, at most 500 records per list.\n\nOperation: sync",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"since\": \"2026-10-28T08:00:00.000Z\",\n  \"epoch\": \"1\",\n  \"changes\": {\n    \"periods\": [\n      {\n        \"id\": \"65f1c2a4b8e9d3a7c1f20e41\",\n        \"startDate\": \"2026-09-01\",\n        \"endDate\": \"2026-09-05\",\n        \"notes\": null,\n        \"clientUpdatedAt\": \"2026-10-28T08:30:00.000Z\"\n      }\n    ],\n    \"symptoms\": [\n      {\n        \"date\": \"2026-10-27\",\n        \"symptoms\": [\n          \"cramps\"\n        ],\n        \"flow\": \"light\",\n        \"mood\": \"calm\",\n        \"clientUpdatedAt\": \"2026-10-28T08:30:00.000Z\"\n      }\n    ]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin: sign in",
+      "item": [
+        {
+          "name": "Sign in as the admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "auth",
+                "login"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "The admin is one predefined account from the server's settings. Five FAILED attempts lock the door for 15 minutes (even the correct password is refused meanwhile). The token lasts 8 hours.\n\nOperation: adminLogin",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"admin@example.com\",\n  \"password\": \"the-admin-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.success) pm.collectionVariables.set('adminToken', body.data.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Check the admin token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "me"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: adminMe"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin: dashboard",
+      "item": [
+        {
+          "name": "Aggregate numbers (never an individual's data)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "dashboard"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Counts of users, records and active reminders. A count of 1 to 4 is returned as the string \"<5\" so a small number cannot point at one person; show it as it is. Tip counts are exact.\n\nOperation: adminDashboard"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin: tips",
+      "item": [
+        {
+          "name": "All tips, including hidden ones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/tips",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "tips"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "food",
+                  "disabled": true,
+                  "description": "Only this type"
+                },
+                {
+                  "key": "active",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Only live (true) or hidden (false)"
+                },
+                {
+                  "key": "reviewed",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Only reviewed (true) or not yet reviewed (false)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true,
+                  "description": "Page size, 1 to 200"
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: adminListTips"
+          },
+          "response": []
+        },
+        {
+          "name": "Write a new tip",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/tips",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "tips"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "New tips start hidden and unreviewed. Titles are unique within a type.\n\nOperation: adminCreateTip",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"activity\",\n  \"title\": \"Light walking\",\n  \"text\": \"A gentle walk is optional. Rest today if you prefer.\",\n  \"showWhen\": \"always\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "One tip",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/tips/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "tips",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "65f1c2a4b8e9d3a7c1f20e11",
+                  "description": "The record id"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: adminGetTip"
+          },
+          "response": []
+        },
+        {
+          "name": "Edit a tip",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/tips/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "tips",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "65f1c2a4b8e9d3a7c1f20e11",
+                  "description": "The record id"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Changing the wording (type, title, text or when it shows) of a reviewed or live tip CLEARS its review and takes it offline (`reviewReset: true`): it must be reviewed and activated again. Saving unchanged wording keeps the review.\n\nOperation: adminUpdateTip",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"A gentle walk is optional. You can rest instead.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a tip",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/tips/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "tips",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "65f1c2a4b8e9d3a7c1f20e11",
+                  "description": "The record id"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: adminDeleteTip"
+          },
+          "response": []
+        },
+        {
+          "name": "Record that a clinician reviewed a tip",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/tips/:id/review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "tips",
+                ":id",
+                "review"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "65f1c2a4b8e9d3a7c1f20e11",
+                  "description": "The record id"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: adminReviewTip",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reviewedAt\": \"2026-10-20\",\n  \"reviewedBy\": \"Dr. A. Rao\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Show or hide a tip",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/tips/:id/active",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "tips",
+                ":id",
+                "active"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "65f1c2a4b8e9d3a7c1f20e11",
+                  "description": "The record id"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "A tip that has not been reviewed cannot be activated (409 TIP_NOT_REVIEWED).\n\nOperation: adminSetTipActive",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin: content",
+      "item": [
+        {
+          "name": "Disclaimer, privacy text and the default checklist",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/content",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "content"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: adminGetContent"
+          },
+          "response": []
+        },
+        {
+          "name": "Change the disclaimer, privacy text and/or default checklist",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/content",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "content"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "The disclaimer cannot be blank (20 to 2000 characters). The default checklist (max 20 items, unique ids) is copied to NEW users only; existing users keep their own.\n\nOperation: adminUpdateContent",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"privacyText\": \"Your data is yours. It is used only to run HerCare and can be deleted at any time.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin: settings",
+      "item": [
+        {
+          "name": "The on/off switch and default cycle values",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "settings"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Operation: adminGetSettings"
+          },
+          "response": []
+        },
+        {
+          "name": "Switch HerCare on or off, and set the defaults",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "settings"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "While `featureEnabled` is false every user endpoint returns 503 FEATURE_DISABLED, except /user/me, export and erase. The defaults apply to users who have not set their own values.\n\nOperation: adminUpdateSettings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"featureEnabled\": true,\n  \"defaultCycleLength\": 28,\n  \"defaultPeriodDuration\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

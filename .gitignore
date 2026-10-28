@@ -2,16 +2,14 @@
 node_modules/
 .pnp
 .pnp.js
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+# Lock files ARE committed inside backend/, admin/ and mobile/ (they make installs reproducible, and
+# `npm ci` needs them). Only the empty stub at the repository root is ignored.
+/package-lock.json
 
-# Environment Variables
+# Environment Variables (secrets). Every .env* file is ignored; only the template is kept.
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
 
 # Logs
 logs
@@ -49,3 +47,23 @@ env/
 # OS generated
 .DS_Store
 Thumbs.db
+
+# Keys, certificates and signing material
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+
+# Database backups and exports hold private health data: never commit them
+*.archive
+*.bson
+*.dump
+dump/
+hercare-*.gz
+hercare-export-*.json
+
+# Test and coverage output
+coverage/
+.nyc_output/
