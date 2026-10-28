@@ -40,10 +40,6 @@ HerCare/
 │   │   └── utils/          # Helper functions and constants
 │   └── README.md
 │
-├── docs/                   # Project documentation and specifications
-│   ├── architecture.md     # System architecture overview
-│   └── api-endpoints.md    # API contract & endpoints design
-│
 ├── .gitignore              # Standard git ignore rules
 └── README.md               # Main project documentation
 ```
