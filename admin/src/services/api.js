@@ -3,7 +3,7 @@
  * Manages communication with /api/admin/* endpoints with authentication headers and robust error normalization.
  */
 
-const API_BASE = '/api/admin';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api/admin';
 
 // In-session token management per security recommendation
 export const getToken = () => {

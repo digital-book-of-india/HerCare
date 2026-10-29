@@ -35,7 +35,7 @@ export default function SignInPage({ onLoginSuccess }) {
   };
 
   const handleFillDevCredentials = () => {
-    setIdentifier('admin@hercare.local');
+    setIdentifier(import.meta.env.VITE_DEFAULT_ADMIN_EMAIL || 'admin@hercare.local');
     setPassword('rq0Cuc6D9XkHBXKr');
     setError(null);
   };
