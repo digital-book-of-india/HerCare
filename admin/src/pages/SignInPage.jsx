@@ -34,9 +34,14 @@ export default function SignInPage({ onLoginSuccess }) {
     }
   };
 
+  const devEmail = import.meta.env.VITE_DEFAULT_ADMIN_EMAIL || 'admin@hercare.local';
+  const devPassword = import.meta.env.VITE_DEFAULT_ADMIN_PASSWORD || '';
+
   const handleFillDevCredentials = () => {
-    setIdentifier(import.meta.env.VITE_DEFAULT_ADMIN_EMAIL || 'admin@hercare.local');
-    setPassword('rq0Cuc6D9XkHBXKr');
+    setIdentifier(devEmail);
+    if (devPassword) {
+      setPassword(devPassword);
+    }
     setError(null);
   };
 
@@ -152,16 +157,18 @@ export default function SignInPage({ onLoginSuccess }) {
         </form>
 
         {/* Development Quick-fill */}
-        <div style={{ marginTop: '20px', paddingTop: '18px', borderTop: '1px solid var(--border)' }}>
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            onClick={handleFillDevCredentials}
-            style={{ width: '100%', fontSize: '0.78rem' }}
-          >
-            Pre-fill Default Admin Credentials (admin@hercare.local)
-          </button>
-        </div>
+        {(import.meta.env.DEV || Boolean(devPassword)) && (
+          <div style={{ marginTop: '20px', paddingTop: '18px', borderTop: '1px solid var(--border)' }}>
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={handleFillDevCredentials}
+              style={{ width: '100%', fontSize: '0.78rem' }}
+            >
+              Pre-fill Default Admin Credentials ({devEmail})
+            </button>
+          </div>
+        )}
 
         {/* Privacy & Security Footnote */}
         <div
