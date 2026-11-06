@@ -1,0 +1,1184 @@
+{
+  "description": "Inputs and the exact expected output of the next-period estimate. Dates are YYYY-MM-DD calendar dates; `today` is the user's local date. See docs/estimate-rule.md.",
+  "rule": {
+    "validCycleMinDays": 15,
+    "validCycleMaxDays": 60,
+    "recentGapsUsed": 6,
+    "gapsNeededToAverage": 2,
+    "predictedPeriodsOnCalendar": 3,
+    "maxPeriodDays": 15
+  },
+  "vectors": [
+    {
+      "name": "no_records",
+      "input": {
+        "today": "2026-05-10",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": []
+      },
+      "estimate": {
+        "status": "no_data",
+        "estimated": true,
+        "basis": "none",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": null,
+        "nextEstimatedStart": null,
+        "nextEstimatedEnd": null,
+        "daysUntilNextPeriod": null,
+        "overdueDays": 0,
+        "cycleDay": null,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "one_period_uses_the_chosen_cycle_length",
+      "input": {
+        "today": "2026-05-10",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-05-01",
+            "endDate": "2026-05-05"
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-05-01",
+        "nextEstimatedStart": "2026-05-29",
+        "nextEstimatedEnd": "2026-06-02",
+        "daysUntilNextPeriod": 19,
+        "overdueDays": 0,
+        "cycleDay": 10,
+        "inPeriod": false
+      },
+      "calendar": [
+        {
+          "month": "2026-05",
+          "days": [
+            {
+              "date": "2026-05-01",
+              "type": "actual"
+            },
+            {
+              "date": "2026-05-02",
+              "type": "actual"
+            },
+            {
+              "date": "2026-05-03",
+              "type": "actual"
+            },
+            {
+              "date": "2026-05-04",
+              "type": "actual"
+            },
+            {
+              "date": "2026-05-05",
+              "type": "actual"
+            },
+            {
+              "date": "2026-05-29",
+              "type": "predicted"
+            },
+            {
+              "date": "2026-05-30",
+              "type": "predicted"
+            },
+            {
+              "date": "2026-05-31",
+              "type": "predicted"
+            }
+          ]
+        },
+        {
+          "month": "2026-06",
+          "days": [
+            {
+              "date": "2026-06-01",
+              "type": "predicted"
+            },
+            {
+              "date": "2026-06-02",
+              "type": "predicted"
+            },
+            {
+              "date": "2026-06-26",
+              "type": "predicted"
+            },
+            {
+              "date": "2026-06-27",
+              "type": "predicted"
+            },
+            {
+              "date": "2026-06-28",
+              "type": "predicted"
+            },
+            {
+              "date": "2026-06-29",
+              "type": "predicted"
+            },
+            {
+              "date": "2026-06-30",
+              "type": "predicted"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "one_period_without_an_end_date",
+      "input": {
+        "today": "2026-05-10",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-05-01",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-05-01",
+        "nextEstimatedStart": "2026-05-29",
+        "nextEstimatedEnd": "2026-06-02",
+        "daysUntilNextPeriod": 19,
+        "overdueDays": 0,
+        "cycleDay": 10,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "one_gap_is_not_enough_to_average",
+      "input": {
+        "today": "2026-02-05",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-01-01",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-01-31",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 1,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-01-31",
+        "nextEstimatedStart": "2026-02-28",
+        "nextEstimatedEnd": "2026-03-04",
+        "daysUntilNextPeriod": 23,
+        "overdueDays": 0,
+        "cycleDay": 6,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "two_gaps_are_averaged",
+      "input": {
+        "today": "2026-03-05",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-01-01",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-01-31",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-03-01",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "recorded_cycles",
+        "tooLittleHistory": false,
+        "intervalsUsed": 2,
+        "cycleLength": 30,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-03-01",
+        "nextEstimatedStart": "2026-03-31",
+        "nextEstimatedEnd": "2026-04-04",
+        "daysUntilNextPeriod": 26,
+        "overdueDays": 0,
+        "cycleDay": 5,
+        "inPeriod": true
+      },
+      "calendar": []
+    },
+    {
+      "name": "an_average_of_28_5_rounds_up",
+      "input": {
+        "today": "2026-03-01",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-01-01",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-01-29",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-02-27",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "recorded_cycles",
+        "tooLittleHistory": false,
+        "intervalsUsed": 2,
+        "cycleLength": 29,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-02-27",
+        "nextEstimatedStart": "2026-03-28",
+        "nextEstimatedEnd": "2026-04-01",
+        "daysUntilNextPeriod": 27,
+        "overdueDays": 0,
+        "cycleDay": 3,
+        "inPeriod": true
+      },
+      "calendar": []
+    },
+    {
+      "name": "irregular_gaps_26_31_29_average_28_67_rounds_to_29",
+      "input": {
+        "today": "2026-04-02",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-01-01",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-01-27",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-02-27",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-03-28",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "recorded_cycles",
+        "tooLittleHistory": false,
+        "intervalsUsed": 3,
+        "cycleLength": 29,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-03-28",
+        "nextEstimatedStart": "2026-04-26",
+        "nextEstimatedEnd": "2026-04-30",
+        "daysUntilNextPeriod": 24,
+        "overdueDays": 0,
+        "cycleDay": 6,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "a_gap_over_60_days_is_ignored",
+      "input": {
+        "today": "2026-07-01",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-01-01",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-01-29",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-05-29",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-06-26",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "recorded_cycles",
+        "tooLittleHistory": false,
+        "intervalsUsed": 2,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-06-26",
+        "nextEstimatedStart": "2026-07-24",
+        "nextEstimatedEnd": "2026-07-28",
+        "daysUntilNextPeriod": 23,
+        "overdueDays": 0,
+        "cycleDay": 6,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "a_gap_under_15_days_is_ignored",
+      "input": {
+        "today": "2026-04-15",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-01-01",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-01-11",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-02-08",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-03-08",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "overdue",
+        "estimated": true,
+        "basis": "recorded_cycles",
+        "tooLittleHistory": false,
+        "intervalsUsed": 2,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-03-08",
+        "nextEstimatedStart": "2026-04-05",
+        "nextEstimatedEnd": "2026-04-09",
+        "daysUntilNextPeriod": -10,
+        "overdueDays": 10,
+        "cycleDay": 39,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "gaps_of_exactly_15_and_60_days_are_valid",
+      "input": {
+        "today": "2026-06-01",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-01-01",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-01-16",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-03-17",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "overdue",
+        "estimated": true,
+        "basis": "recorded_cycles",
+        "tooLittleHistory": false,
+        "intervalsUsed": 2,
+        "cycleLength": 38,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-03-17",
+        "nextEstimatedStart": "2026-04-24",
+        "nextEstimatedEnd": "2026-04-28",
+        "daysUntilNextPeriod": -38,
+        "overdueDays": 38,
+        "cycleDay": 77,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "gaps_of_14_and_61_days_are_not_valid",
+      "input": {
+        "today": "2026-09-01",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-01-01",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-01-15",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-03-17",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-04-14",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-05-12",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "overdue",
+        "estimated": true,
+        "basis": "recorded_cycles",
+        "tooLittleHistory": false,
+        "intervalsUsed": 2,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-05-12",
+        "nextEstimatedStart": "2026-06-09",
+        "nextEstimatedEnd": "2026-06-13",
+        "daysUntilNextPeriod": -84,
+        "overdueDays": 84,
+        "cycleDay": 113,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "only_the_most_recent_six_gaps_count",
+      "input": {
+        "today": "2026-12-30",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-01-01",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-02-10",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-03-22",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-04-19",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-05-17",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-06-14",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-07-12",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-08-09",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-09-06",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "overdue",
+        "estimated": true,
+        "basis": "recorded_cycles",
+        "tooLittleHistory": false,
+        "intervalsUsed": 6,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-09-06",
+        "nextEstimatedStart": "2026-10-04",
+        "nextEstimatedEnd": "2026-10-08",
+        "daysUntilNextPeriod": -87,
+        "overdueDays": 87,
+        "cycleDay": 116,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "overdue_by_four_days",
+      "input": {
+        "today": "2026-06-02",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-05-01",
+            "endDate": "2026-05-05"
+          }
+        ]
+      },
+      "estimate": {
+        "status": "overdue",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-05-01",
+        "nextEstimatedStart": "2026-05-29",
+        "nextEstimatedEnd": "2026-06-02",
+        "daysUntilNextPeriod": -4,
+        "overdueDays": 4,
+        "cycleDay": 33,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "today_is_inside_the_period",
+      "input": {
+        "today": "2026-05-03",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-05-01",
+            "endDate": "2026-05-05"
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-05-01",
+        "nextEstimatedStart": "2026-05-29",
+        "nextEstimatedEnd": "2026-06-02",
+        "daysUntilNextPeriod": 26,
+        "overdueDays": 0,
+        "cycleDay": 3,
+        "inPeriod": true
+      },
+      "calendar": []
+    },
+    {
+      "name": "the_day_after_the_period_ends",
+      "input": {
+        "today": "2026-05-06",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-05-01",
+            "endDate": "2026-05-05"
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-05-01",
+        "nextEstimatedStart": "2026-05-29",
+        "nextEstimatedEnd": "2026-06-02",
+        "daysUntilNextPeriod": 23,
+        "overdueDays": 0,
+        "cycleDay": 6,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "an_ongoing_period_counts_as_the_usual_length",
+      "input": {
+        "today": "2026-05-04",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-05-01",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-05-01",
+        "nextEstimatedStart": "2026-05-29",
+        "nextEstimatedEnd": "2026-06-02",
+        "daysUntilNextPeriod": 25,
+        "overdueDays": 0,
+        "cycleDay": 4,
+        "inPeriod": true
+      },
+      "calendar": []
+    },
+    {
+      "name": "an_ongoing_period_past_the_usual_length",
+      "input": {
+        "today": "2026-05-09",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-05-01",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-05-01",
+        "nextEstimatedStart": "2026-05-29",
+        "nextEstimatedEnd": "2026-06-02",
+        "daysUntilNextPeriod": 20,
+        "overdueDays": 0,
+        "cycleDay": 9,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "the_period_starts_today",
+      "input": {
+        "today": "2026-05-01",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-05-01",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-05-01",
+        "nextEstimatedStart": "2026-05-29",
+        "nextEstimatedEnd": "2026-06-02",
+        "daysUntilNextPeriod": 28,
+        "overdueDays": 0,
+        "cycleDay": 1,
+        "inPeriod": true
+      },
+      "calendar": []
+    },
+    {
+      "name": "the_last_period_starts_tomorrow",
+      "input": {
+        "today": "2026-04-30",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-05-01",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-05-01",
+        "nextEstimatedStart": "2026-05-29",
+        "nextEstimatedEnd": "2026-06-02",
+        "daysUntilNextPeriod": 29,
+        "overdueDays": 0,
+        "cycleDay": null,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "leap_year_february",
+      "input": {
+        "today": "2024-02-12",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2024-02-10",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2024-02-10",
+        "nextEstimatedStart": "2024-03-09",
+        "nextEstimatedEnd": "2024-03-13",
+        "daysUntilNextPeriod": 26,
+        "overdueDays": 0,
+        "cycleDay": 3,
+        "inPeriod": true
+      },
+      "calendar": [
+        {
+          "month": "2024-02",
+          "days": [
+            {
+              "date": "2024-02-10",
+              "type": "actual"
+            },
+            {
+              "date": "2024-02-11",
+              "type": "actual"
+            },
+            {
+              "date": "2024-02-12",
+              "type": "actual"
+            }
+          ]
+        },
+        {
+          "month": "2024-03",
+          "days": [
+            {
+              "date": "2024-03-09",
+              "type": "predicted"
+            },
+            {
+              "date": "2024-03-10",
+              "type": "predicted"
+            },
+            {
+              "date": "2024-03-11",
+              "type": "predicted"
+            },
+            {
+              "date": "2024-03-12",
+              "type": "predicted"
+            },
+            {
+              "date": "2024-03-13",
+              "type": "predicted"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "not_a_leap_year_february",
+      "input": {
+        "today": "2026-02-12",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-02-10",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-02-10",
+        "nextEstimatedStart": "2026-03-10",
+        "nextEstimatedEnd": "2026-03-14",
+        "daysUntilNextPeriod": 26,
+        "overdueDays": 0,
+        "cycleDay": 3,
+        "inPeriod": true
+      },
+      "calendar": []
+    },
+    {
+      "name": "prediction_crosses_the_year_end",
+      "input": {
+        "today": "2025-12-22",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2025-12-20",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2025-12-20",
+        "nextEstimatedStart": "2026-01-17",
+        "nextEstimatedEnd": "2026-01-21",
+        "daysUntilNextPeriod": 26,
+        "overdueDays": 0,
+        "cycleDay": 3,
+        "inPeriod": true
+      },
+      "calendar": [
+        {
+          "month": "2025-12",
+          "days": [
+            {
+              "date": "2025-12-20",
+              "type": "actual"
+            },
+            {
+              "date": "2025-12-21",
+              "type": "actual"
+            },
+            {
+              "date": "2025-12-22",
+              "type": "actual"
+            }
+          ]
+        },
+        {
+          "month": "2026-01",
+          "days": [
+            {
+              "date": "2026-01-17",
+              "type": "predicted"
+            },
+            {
+              "date": "2026-01-18",
+              "type": "predicted"
+            },
+            {
+              "date": "2026-01-19",
+              "type": "predicted"
+            },
+            {
+              "date": "2026-01-20",
+              "type": "predicted"
+            },
+            {
+              "date": "2026-01-21",
+              "type": "predicted"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prediction_from_the_31st",
+      "input": {
+        "today": "2026-02-02",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-01-31",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-01-31",
+        "nextEstimatedStart": "2026-02-28",
+        "nextEstimatedEnd": "2026-03-04",
+        "daysUntilNextPeriod": 26,
+        "overdueDays": 0,
+        "cycleDay": 3,
+        "inPeriod": true
+      },
+      "calendar": []
+    },
+    {
+      "name": "period_length_is_averaged_from_recorded_lengths",
+      "input": {
+        "today": "2026-03-10",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-01-01",
+            "endDate": "2026-01-04"
+          },
+          {
+            "startDate": "2026-01-29",
+            "endDate": "2026-02-03"
+          }
+        ]
+      },
+      "estimate": {
+        "status": "overdue",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 1,
+        "cycleLength": 28,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-01-29",
+        "nextEstimatedStart": "2026-02-26",
+        "nextEstimatedEnd": "2026-03-02",
+        "daysUntilNextPeriod": -12,
+        "overdueDays": 12,
+        "cycleDay": 41,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "period_length_is_capped_at_15_days",
+      "input": {
+        "today": "2026-03-10",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-01-01",
+            "endDate": "2026-01-20"
+          },
+          {
+            "startDate": "2026-01-29",
+            "endDate": "2026-02-17"
+          }
+        ]
+      },
+      "estimate": {
+        "status": "overdue",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 1,
+        "cycleLength": 28,
+        "periodDuration": 15,
+        "lastPeriodStart": "2026-01-29",
+        "nextEstimatedStart": "2026-02-26",
+        "nextEstimatedEnd": "2026-03-12",
+        "daysUntilNextPeriod": -12,
+        "overdueDays": 12,
+        "cycleDay": 41,
+        "inPeriod": false
+      },
+      "calendar": []
+    },
+    {
+      "name": "records_may_arrive_in_any_order",
+      "input": {
+        "today": "2026-03-05",
+        "settings": {
+          "cycleLength": 28,
+          "periodDuration": 5
+        },
+        "records": [
+          {
+            "startDate": "2026-03-01",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-01-01",
+            "endDate": null
+          },
+          {
+            "startDate": "2026-01-31",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "recorded_cycles",
+        "tooLittleHistory": false,
+        "intervalsUsed": 2,
+        "cycleLength": 30,
+        "periodDuration": 5,
+        "lastPeriodStart": "2026-03-01",
+        "nextEstimatedStart": "2026-03-31",
+        "nextEstimatedEnd": "2026-04-04",
+        "daysUntilNextPeriod": 26,
+        "overdueDays": 0,
+        "cycleDay": 5,
+        "inPeriod": true
+      },
+      "calendar": []
+    },
+    {
+      "name": "the_users_own_cycle_and_period_length",
+      "input": {
+        "today": "2026-05-10",
+        "settings": {
+          "cycleLength": 35,
+          "periodDuration": 7
+        },
+        "records": [
+          {
+            "startDate": "2026-05-01",
+            "endDate": null
+          }
+        ]
+      },
+      "estimate": {
+        "status": "upcoming",
+        "estimated": true,
+        "basis": "chosen_length",
+        "tooLittleHistory": true,
+        "intervalsUsed": 0,
+        "cycleLength": 35,
+        "periodDuration": 7,
+        "lastPeriodStart": "2026-05-01",
+        "nextEstimatedStart": "2026-06-05",
+        "nextEstimatedEnd": "2026-06-11",
+        "daysUntilNextPeriod": 26,
+        "overdueDays": 0,
+        "cycleDay": 10,
+        "inPeriod": false
+      },
+      "calendar": []
+    }
+  ]
+}

@@ -1,62 +1,59 @@
 # HerCare - Women’s Wellness & Period Tracker
 
-A modern, privacy-focused mobile application and backend designed for tracking menstrual cycles, ovulation windows, symptoms, moods, and overall wellness.
+A free, privacy-focused period tracker and wellness helper inside the DBI app. Users record period dates, symptoms and mood, get reminders, and follow simple self-care tips. It is a wellness and tracking tool, **not** a medical diagnosis or contraception app, and every predicted date is an **estimate**.
 
 ---
 
-## 📱 Features
+## 📱 Version 1 features
 
-- **Cycle & Ovulation Tracking**: Accurate prediction of next period, fertile window, and ovulation day.
-- **Symptom & Mood Logging**: Daily logs for flow intensity, cramps, mood changes, physical symptoms, and energy levels.
-- **Wellness & Health Insights**: Hydration reminders, sleep tracking, and personalized wellness tips based on cycle phase.
-- **Privacy & Security**: Secure user authentication and local/encrypted cloud data storage.
-- **Reminders & Notifications**: Gentle alerts before cycle start, fertile days, and daily logging reminders.
+- **Period calendar and predictions:** estimated next period from the user’s own history, clearly labelled as an estimate.
+- **Complete period history:** every logged cycle, with actual dates kept separate from estimated ones.
+- **Reminders:** upcoming period, daily logging and hydration reminders the user controls (pause, snooze, turn off).
+- **Symptom and flow log:** cramps, headache, mood, energy and flow (light, medium, heavy), plus an optional note.
+- **Daily self-care:** an editable checklist, hydration reminders and short, clinician-reviewed food and activity tips.
+
+Works offline and syncs to the server. No AI and no subscription. Not in v1: ovulation or fertility information, pregnancy claims, diagnosis, social features, advanced analytics.
 
 ---
 
-## 📂 Repository Structure
+## 🚦 Status
+
+| Part | State |
+|---|---|
+| **Backend** (`backend/`) | Built and tested, with full documentation |
+| **Mobile app** (`mobile/`) | Not built yet. Start at `backend/docs/mobile-integration-guide.md` |
+| **Admin panel** (`admin/`) | Backend API built; interface not built yet. Start at `backend/docs/admin-panel-guide.md` |
+| **Clinical review** of tips and texts | Pending: `backend/docs/clinical-review-process.md` |
+
+---
+
+## 📂 Repository structure
 
 ```text
 HerCare/
-├── mobile/                 # Mobile client application
-│   ├── src/
-│   │   ├── assets/         # Images, fonts, and icons
-│   │   ├── components/     # Reusable UI widgets and elements
-│   │   ├── context/        # State management & global context
-│   │   ├── navigation/     # App routing & navigation stacks
-│   │   ├── screens/        # UI screens (Home, Calendar, Symptoms, Insights, Profile)
-│   │   ├── services/       # API clients, local storage, push notifications
-│   │   └── utils/          # Cycle calculators, date formatters, validators
-│   └── README.md
+├── backend/                # The API (Node.js, Express, MongoDB): finished
+│   ├── src/                # routes, controllers, services, models, middlewares, ...
+│   ├── tests/              # offline tests, and live API tests in tests/api/
+│   └── docs/               # all documentation and the API reference
 │
-├── backend/                # Backend API service
-│   ├── src/
-│   │   ├── config/         # Database and server configuration
-│   │   ├── controllers/    # API request handlers
-│   │   ├── middlewares/    # Authentication, validation, and error handling
-│   │   ├── models/         # Database schemas / entity definitions
-│   │   ├── routes/         # REST API endpoints
-│   │   ├── services/       # Business logic (cycle prediction engine, analytics)
-│   │   └── utils/          # Helper functions and constants
-│   └── README.md
-│
-├── .gitignore              # Standard git ignore rules
-└── README.md               # Main project documentation
+├── mobile/                 # Mobile client (to be built)
+├── admin/                  # Admin panel interface (to be built)
+├── context.md              # Running project log: decisions, phases, API notes
+└── README.md               # This file
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting started
 
-### Prerequisites
-- Node.js (v18+) or Python (v3.10+) depending on preferred backend stack
-- React Native / Flutter SDK for mobile app development
-- Git
+The backend needs **Node.js 20+** and **MongoDB**.
 
-### Setup
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/digital-book-of-india/HerCare.git
-   cd HerCare
-   ```
-2. Navigate to `mobile/` or `backend/` and follow their respective `README.md` setup instructions.
+```bash
+cd backend
+npm install
+cp .env.example .env     # then fill it in
+npm run seed
+npm run dev              # http://localhost:5000
+```
+
+Everything else (every setting, deploying, testing, the API reference, the guides for the mobile and admin developers) is in **[backend/docs/README.md](backend/docs/README.md)**.

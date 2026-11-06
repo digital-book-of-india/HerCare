@@ -1,0 +1,40 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend REST API for HerCare Women's Wellness & Period Tracker.",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "node --test",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node src/scripts/seed.script.js",
+    "indexes": "node src/scripts/indexes.script.js",
+    "reapply-erasures": "node src/scripts/reapplyErasures.script.js",
+    "test:api": "node tests/api/runApi.script.js",
+    "rotate-key": "node src/scripts/rotateKey.script.js",
+    "review-sheet": "node src/scripts/reviewSheet.script.js",
+    "docs:build": "node src/scripts/buildDocs.script.js",
+    "dev-token": "node src/scripts/devToken.script.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "private": true
+}

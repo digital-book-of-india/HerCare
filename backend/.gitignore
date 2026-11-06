@@ -1,0 +1,41 @@
+# Backend (Node.js / Express / MongoDB)
+
+# Dependencies. package-lock.json is committed on purpose: `npm ci` needs it.
+node_modules/
+
+# Secrets. Never commit them. Only the template .env.example is kept.
+.env
+.env.*
+!.env.example
+
+# Logs (the server logs to the console; these appear when someone redirects output to a file)
+logs/
+*.log
+npm-debug.log*
+
+# Test and coverage output
+coverage/
+.nyc_output/
+
+# Database backups, dumps and personal data exports: private health data, never commit
+*.archive
+*.bson
+*.dump
+dump/
+hercare-*.gz
+hercare-export-*.json
+erasures*.log
+
+# Keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Packaging output
+*.tgz
+
+# Throwaway scripts used while debugging or auditing (they can hold real ids and data)
+.*-tmp.mjs
+.*-tmp.js
+.audit-*
